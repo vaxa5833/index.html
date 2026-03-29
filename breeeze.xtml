@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>BreezeNode Mini App</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #F0F4F8;
+            --primary: #00C4CC;
+            --primary-soft: rgba(0, 196, 204, 0.1);
+            --dark: #1A2B47;
+            --gray: #94A3B8;
+            --white: #FFFFFF;
+            --shadow: 0 8px 30px rgba(0,0,0,0.04);
+        }
+
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--dark);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        #app {
+            width: 100%;
+            max-width: 450px;
+            background: var(--bg-color);
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Header */
+        header {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 600;
+            font-size: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .logo-dot {
+            width: 12px;
+            height: 12px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        /* Screens */
+        .screen {
+            flex: 1;
+            padding: 20px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: auto;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .screen.active {
+            display: flex;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Screen - Power Button */
+        .power-container {
+            margin-top: 40px;
+            position: relative;
+            width: 200px;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .power-btn {
+            width: 160px;
+            height: 160px;
+            border-radius: 50%;
+            background: var(--white);
+            border: none;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+
+        .power-btn svg {
+            width: 50px;
+            fill: var(--gray);
+            transition: 0.3s;
+        }
+
+        .power-btn.on {
+            box-shadow: 0 0 40px var(--primary-soft);
+        }
+
+        .power-btn.on svg {
+            fill: var(--primary);
+            filter: drop-shadow(0 0 5px var(--primary));
+        }
+
+        .breeze-waves {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            opacity: 0;
+        }
+
+        .power-btn.on + .breeze-waves {
+            animation: pulse-wave 2s infinite;
+        }
+
+        @keyframes pulse-wave {
+            0% { transform: scale(0.8); opacity: 0.5; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        .status-text {
+            margin-top: 25px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .node-selector {
+            margin-top: 30px;
+            background: var(--white);
+            padding: 12px 20px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: var(--shadow);
+            font-size: 14px;
+        }
+
+        /* Balance Screen */
+        .card {
+            background: var(--white);
+            width: 100%;
+            padding: 20px;
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 20px;
+        }
+
+        .balance-amount {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--primary);
+            margin: 10px 0;
+        }
+
+        .btn-pay {
+            background: var(--dark);
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 15px;
+            border-radius: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* Referral Screen */
+        .ref-link {
+            background: var(--bg-color);
+            padding: 12px;
+            border-radius: 12px;
+            width: 100%;
+            text-align: center;
+            border: 1px dashed var(--primary);
+            color: var(--primary);
+            font-family: monospace;
+        }
+
+        /* Navigation Bar */
+        nav {
+            background: var(--white);
+            height: 80px;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            border-top-left-radius: 30px;
+            border-top-right-radius: 30px;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.02);
+            padding-bottom: 15px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+            color: var(--gray);
+            font-size: 11px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .nav-item.active {
+            color: var(--primary);
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            fill: currentColor;
+        }
+
+        /* Grid for stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: var(--white);
+            padding: 15px;
+            border-radius: 18px;
+            text-align: center;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <header>
+        <div class="logo">
+            <div class="logo-dot"></div>
+            BreezeNode
+        </div>
+        <div style="color: var(--gray)">ID: 4812</div>
+    </header>
+
+    <!-- Screen 1: Home -->
+    <main id="home" class="screen active">
+        <div class="power-container">
+            <button class="power-btn" onclick="toggleConnect(this)">
+                <svg viewBox="0 0 24 24"><path d="M12 21c-4.97 0-9-4.03-9-9s4.03-9 9-9c.83 0 1.5.67 1.5 1.5S12.83 6 12 6c-3.31 0-6 2.69-6 6s2.69 6 6 6 6-2.69 6-6c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5c0 4.97-4.03 9-9 9zM12 12c-.83 0-1.5-.67-1.5-1.5V3.5c0-.83.67-1.5 1.5-1.5s1.5.67 1.5 1.5v7c0 .83-.67 1.5-1.5 1.5z"/></svg>
+                <span style="font-size: 12px; margin-top: 8px; color: var(--gray);">Connect</span>
+            </button>
+            <div class="breeze-waves"></div>
+        </div>
+
+        <div class="status-text" id="statusLabel">DISCONNECTED</div>
+
+        <div class="node-selector">
+            <span>🇩🇪</span>
+            <b>Frankfurt Node</b>
+            <span style="color: #4ade80">● 42ms</span>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-box">
+                <div style="color: var(--gray)">Download</div>
+                <div style="font-weight: 600" id="dlSpeed">0.0 Mb/s</div>
+            </div>
+            <div class="stat-box">
+                <div style="color: var(--gray)">Upload</div>
+                <div style="font-weight: 600" id="ulSpeed">0.0 Mb/s</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Screen 2: Balance -->
+    <main id="balance" class="screen">
+        <div class="card">
+            <div style="color: var(--gray)">Остаток подписки</div>
+            <div class="balance-amount">14 дней</div>
+            <div style="font-size: 13px">Активен до 12 апреля 2026</div>
+        </div>
+        <h3 style="width: 100%; font-size: 16px;">Выберите тариф</h3>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <b>1 Месяц</b>
+                <span style="color: var(--primary); font-weight: 600;">$4.99</span>
+            </div>
+            <button class="btn-pay">Выбрать</button>
+        </div>
+    </main>
+
+    <!-- Screen 3: Referral -->
+    <main id="referral" class="screen">
+        <div style="text-align: center; margin-bottom: 20px;">
+            <h2>🤝</h2>
+            <h3>Приглашайте друзей</h3>
+            <p style="color: var(--gray); font-size: 14px;">Получайте +7 дней за каждого, кто активирует BreezeNode</p>
+        </div>
+        <div class="card">
+            <div style="margin-bottom: 10px; font-size: 12px; color: var(--gray);">Ваша ссылка:</div>
+            <div class="ref-link">t.me/breezenode_bot?start=ref4812</div>
+        </div>
+    </main>
+
+    <!-- Screen 4: Support -->
+    <main id="support" class="screen">
+        <div style="text-align: center; margin-top: 50px;">
+            <div style="background: var(--primary-soft); width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="var(--primary)"><path d="M12 2C6.477 2 2 6.477 2 12c0 1.821.487 3.53 1.338 5L2.015 22l5.076-1.338C8.582 21.513 10.231 22 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2zm0 18c-1.477 0-2.863-.394-4.061-1.082l-3.35.882.882-3.35A7.952 7.952 0 014 12c0-4.411 3.589-8 8-8s8 3.589 8 8-3.589 8-8 8z"/></svg>
+            </div>
+            <h3>Помощь 24/7</h3>
+            <p style="color: var(--gray); font-size: 14px;">Мы ответим в течение 10 минут</p>
+            <button class="btn-pay" style="background: var(--primary);">Написать в поддержку</button>
+        </div>
+    </main>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-item active" onclick="showScreen('home', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 3L2 12h3v8h6v-6h2v6h6v-8h3L12 3z"/></svg>
+            <span>Breeze</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('balance', this)">
+            <svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.1 0-2-.9-2-2V5c0-1.1.9-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg>
+            <span>Wallet</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('referral', this)">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            <span>Friends</span>
+        </div>
+        <div class="nav-item" onclick="showScreen('support', this)">
+            <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+            <span>Help</span>
+        </div>
+    </nav>
+</div>
+
+<script>
+    function showScreen(screenId, el) {
+        // Switch Active Class in Nav
+        document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        el.classList.add('active');
+
+        // Switch Active Screen
+        document.querySelectorAll('.screen').forEach(screen => screen.classList.remove('active'));
+        document.getElementById(screenId).classList.add('active');
+    }
+
+    let isConnected = false;
+    function toggleConnect(btn) {
+        isConnected = !isConnected;
+        const statusLabel = document.getElementById('statusLabel');
+        const dl = document.getElementById('dlSpeed');
+        const ul = document.getElementById('ulSpeed');
+
+        if(isConnected) {
+            btn.classList.add('on');
+            statusLabel.innerText = "BREEZE ACTIVE";
+            statusLabel.style.color = "var(--primary)";
+            // Simulate speed
+            dl.innerText = "25.4 Mb/s";
+            ul.innerText = "8.1 Mb/s";
+        } else {
+            btn.classList.remove('on');
+            statusLabel.innerText = "DISCONNECTED";
+            statusLabel.style.color = "var(--gray)";
+            dl.innerText = "0.0 Mb/s";
+            ul.innerText = "0.0 Mb/s";
+        }
+    }
+</script>
+
+</body>
+</html>
